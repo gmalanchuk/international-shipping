@@ -26,9 +26,11 @@ services:
 
   redis:
     image: redis:alpine
+    restart: always
 
   celery:
     build: .
+    restart: always
     command: celery -A config worker --loglevel=info
     environment:
       - DB_NAME=${MYSQL_NAME}
@@ -36,16 +38,32 @@ services:
       - DB_PASS=${MYSQL_PASS}
       - DB_HOST=${MYSQL_HOST}
     depends_on:
+      - app
       - redis
       - mysql
 
-#  flower:
-#    build: .
-#    command: celery -A config flower
-#    ports:
-#      - '5555:5555'
-#    depends_on:
-#      - redis
+  celerybeat:
+    build: .
+    restart: always
+    command: celery -A config beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      - DB_NAME=${MYSQL_NAME}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASS=${MYSQL_PASS}
+      - DB_HOST=${MYSQL_HOST}
+    depends_on:
+      - app
+      - redis
+      - mysql
+
+  flower:
+    build: .
+    restart: always
+    command: celery -A config flower
+    ports:
+      - '5555:5555'
+    depends_on:
+      - redis
 
 
 volumes:
