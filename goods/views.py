@@ -1,3 +1,5 @@
+import logging
+
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListAPIView
@@ -8,14 +10,20 @@ from goods.models import Package, Type
 from goods.serializers import TypeSerializer, PackageRetrieveListSerializer, PackageCreateSerializer
 
 
+logger = logging.getLogger(__name__)
+
+
 class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Package.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['type']
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
+        """Метод создаёт посылку и сохраняет её уникальный артикул в сессию
+        для того, чтобы пользователь мог просматривать свои посылки.
+        (У пользователя нет возможности просматривать чужие посылки)"""
 
+        response = super().create(request, *args, **kwargs)
         article = response.data['article']
 
         if 'articles' not in request.session:
@@ -27,14 +35,20 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
         return response
 
     def list(self, request, *args, **kwargs):
+        """Получение списка посылок, которые были созданы пользователем.
+        Также возможна фильтрация по типу посылки и факту наличия
+        рассчитанной стоимости доставки"""
+
         articles = request.session.get('articles', [])
 
         if not articles:
             self.queryset = self.queryset.none()
         else:
+            # Получение всех посылок, которые были созданы пользователем
             self.queryset = self.queryset.filter(article__in=articles)
 
-        type_filter = request.query_params.get('filter')
+        # Если передан параметр filter, то происходит фильтрация по типу посылки или факту наличия стоимости доставки
+        type_filter = request.query_params.get('filter')  # todo переименовать тогда эту переменную просто в filter, т.к фильтрация может быть не только по типу посылки
         if type_filter:
             self.queryset = self.queryset.filter(type_id=type_filter)
 
@@ -43,11 +57,13 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
         return response
 
     def retrieve(self, request, *args, **kwargs):
+        """Получение информации о посылке по её ID.
+        Пользователь может просматривать только свои посылки"""
+
         response = super().retrieve(request, *args, **kwargs)
 
-        package = response.data
-
-        if package['article'] not in request.session.get('articles', []):
+        # Если посылка не принадлежит пользователю, то пользователь не имеет права на её просмотр
+        if response.data['article'] not in request.session.get('articles', []):
             raise PermissionDenied
 
         return response

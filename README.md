@@ -7,3 +7,6 @@ celery -A config call goods.tasks.calculate_delivery_cost
 
 
 кронтаб походу не работает
+
+
+сделать логивароние во вью и в методе сейв в моделе посылки
