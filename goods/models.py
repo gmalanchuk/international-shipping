@@ -1,7 +1,10 @@
+import logging
 import random
 import string
 
 from django.db import models
+
+logger = logging.getLogger(__name__)
 
 
 class Package(models.Model):
@@ -22,6 +25,7 @@ class Package(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:  # Присвоение артикула только при создании объекта
             self.article = self.__generate_article_code()
+            logger.debug(f"Article {self.article} generated")
         super().save(*args, **kwargs)
 
     def __generate_article_code(self):

@@ -1,6 +1,11 @@
+import logging
+
 from rest_framework import serializers
 
 from goods.models import Package, Type
+
+
+logger = logging.getLogger(__name__)
 
 
 class PackageCreateSerializer(serializers.ModelSerializer):
@@ -11,6 +16,7 @@ class PackageCreateSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+        logger.debug(f"Serializing package: {representation}")
         return {'article': representation['article']}
 
 

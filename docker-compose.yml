@@ -11,22 +11,18 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
+      - mysql
 
-  postgres:
-    image: postgres:alpine
-    restart: always
-    ports:
-      - "${POSTGRES_PORT}:5432"
-    environment:
-      - POSTGRES_DB=${POSTGRES_NAME}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASS}
-      - PGPORT=5432
-    volumes:
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-      - postgres_data:/var/lib/postgresql/data/
+  mysql:
+      image: mysql:8.3
+      restart: always
+      environment:
+          - MYSQL_DATABASE=${MYSQL_NAME}
+          - MYSQL_ROOT_PASSWORD=${MYSQL_PASS}
+      ports:
+          - "${MYSQL_PORT}:3306"
+      volumes:
+          - mysql_data:/var/lib/mysql
 
   redis:
     image: redis:alpine
@@ -35,13 +31,13 @@ services:
     build: .
     command: celery -A config worker --loglevel=info
     environment:
-      - DB_NAME=${POSTGRES_NAME}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASS=${POSTGRES_PASS}
-      - DB_HOST=${POSTGRES_HOST}
+      - DB_NAME=${MYSQL_NAME}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASS=${MYSQL_PASS}
+      - DB_HOST=${MYSQL_HOST}
     depends_on:
       - redis
-      - postgres
+      - mysql
 
   flower:
     build: .
@@ -53,4 +49,4 @@ services:
 
 
 volumes:
-  postgres_data:
+    mysql_data:

@@ -25,12 +25,14 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
 
         response = super().create(request, *args, **kwargs)
         article = response.data['article']
+        logger.info(f"Package created with article {article}")
 
         if 'articles' not in request.session:
             request.session['articles'] = []
 
         request.session['articles'].append(article)
         request.session.modified = True
+        logger.debug(f"Article {article} added to session")
 
         return response
 
@@ -50,9 +52,11 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
         # Если передан параметр filter, то происходит фильтрация по типу посылки или факту наличия стоимости доставки
         type_filter = request.query_params.get('filter')  # todo переименовать тогда эту переменную просто в filter, т.к фильтрация может быть не только по типу посылки
         if type_filter:
+            logger.debug(f"Applying type filter: {type_filter}")
             self.queryset = self.queryset.filter(type_id=type_filter)
 
         response = super().list(request, *args, **kwargs)
+        logger.info("Package list fetched successfully")
 
         return response
 
@@ -64,8 +68,10 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
 
         # Если посылка не принадлежит пользователю, то пользователь не имеет права на её просмотр
         if response.data['article'] not in request.session.get('articles', []):
+            logger.debug(f"Permission denied for accessing package with article {response.data['article']}")
             raise PermissionDenied
 
+        logger.info(f"Package with article {response.data['article']} successfully retrieved")
         return response
 
     def get_serializer_class(self):
