@@ -33,6 +33,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'django_filters',
+    'drf_spectacular',
 
     'goods',
 ]
@@ -129,6 +130,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 CELERY_BROKER_URL = 'redis://redis:6379'
@@ -175,4 +177,9 @@ LOGGING = {
             "style": "{",
         }
     },
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "international shipping API",
+    "VERSION": "1.0.0",
 }

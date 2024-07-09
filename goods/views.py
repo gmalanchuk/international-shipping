@@ -1,6 +1,7 @@
 import logging
 
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
@@ -14,6 +15,7 @@ from goods.serializers import TypeSerializer, PackageRetrieveListSerializer, Pac
 logger = logging.getLogger(__name__)
 
 
+@extend_schema(tags=['Packages'])
 class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Package.objects.all()
     serializer_class = PackageRetrieveListSerializer
@@ -76,6 +78,7 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
         return super().get_serializer_class()
 
 
+@extend_schema(tags=['Types'])
 class TypeListAPIView(ListAPIView):
     queryset = Type.objects.all()
     serializer_class = TypeSerializer

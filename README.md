@@ -1,12 +1,15 @@
-https://docs.google.com/document/d/1XE0z6Kf3uze7yVuZVj0hnm89l1cmQMKkgySKnV6ff6s/edit?usp=sharing
+1. Скопировать переменные окружения из .env.example файла в .env
 
+2. Запустить приложение можно командой
+```shell
+docker-compose up
+```
+
+Запустить периодическую задачу вне расписания можно зайдя в контейнер с приложением:
+```shell
+docker-compose exec app sh
+```
+и выполнив команду:
+```shell
 celery -A config call goods.tasks.calculate_delivery_cost
-
-
-создать фикстуры для типов доставки
-
-
-кронтаб походу не работает
-
-
-логи из селери таски не пишутся в файл
+```
