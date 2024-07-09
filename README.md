@@ -13,3 +13,5 @@ docker-compose exec app sh
 ```shell
 celery -A config call goods.tasks.calculate_delivery_cost
 ```
+
+Документация доступна по адресу http://127.0.0.1:8000/api/docs/

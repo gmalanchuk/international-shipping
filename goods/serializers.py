@@ -22,10 +22,14 @@ class PackageCreateSerializer(serializers.ModelSerializer):
 
 class PackageRetrieveListSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', queryset=Type.objects.all())
+    delivery_cost = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
         fields = ('id', 'name', 'weight', 'type', 'cost', 'delivery_cost', 'article')
+
+    def get_delivery_cost(self, obj):
+        return obj.delivery_cost if obj.delivery_cost is not None else "Not calculated"
 
 
 class TypeSerializer(serializers.ModelSerializer):
