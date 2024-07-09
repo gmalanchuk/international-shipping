@@ -5,7 +5,7 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveMode
 from rest_framework.viewsets import GenericViewSet
 
 from goods.models import Package, Type
-from goods.serializers import TypeSerializer, PackageListSerializer, PackageCreateSerializer
+from goods.serializers import TypeSerializer, PackageRetrieveListSerializer, PackageCreateSerializer
 
 
 class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
@@ -54,7 +54,7 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
-            return PackageListSerializer
+            return PackageRetrieveListSerializer
         elif self.action == 'create':
             return PackageCreateSerializer
         return super().get_serializer_class()

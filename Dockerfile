@@ -13,4 +13,4 @@ RUN pip install poetry && \
 
 EXPOSE 8000
 
-COPY ../idk .
+COPY . .

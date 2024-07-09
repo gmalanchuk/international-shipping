@@ -1,30 +1,40 @@
-import uuid
+import random
+import string
 
 from django.db import models
 
 
-def generate_article():
-    return str(uuid.uuid4()).replace('-', '')[:10]
-
-
 class Package(models.Model):
-    name = models.CharField(max_length=100)
-    weight = models.DecimalField(max_digits=6, decimal_places=2)
-    price = models.DecimalField(max_digits=9, decimal_places=2)
-    type = models.ForeignKey('Type', on_delete=models.CASCADE)
-    article = models.CharField(default=generate_article, max_length=10)   # индивидуальный айди посылки
-    delivery_cost = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True)
+    """Модель посылки"""
+
+    name = models.CharField(max_length=100, verbose_name='Название')
+    weight = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Вес')
+    cost = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='Стоимость')
+    type = models.ForeignKey(to='Type', on_delete=models.CASCADE, verbose_name='Тип посылки')
+    article = models.CharField(unique=True, max_length=10, verbose_name='Уникальный номер посылки')
+    delivery_cost = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, verbose_name='Стоимость доставки')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"ID: {self.pk} | Name: {self.name} | Article: {self.article}"
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Присвоение артикула только при создании объекта
+            self.article = self.__generate_article_code()
+        super().save(*args, **kwargs)
+
+    def __generate_article_code(self):
+        characters = string.ascii_letters + string.digits
+        return ''.join(random.choices(characters, k=10))
 
 
 class Type(models.Model):
-    name = models.CharField(max_length=52)
+    """Модель типа посылки (одежда, электроника и тд)"""
+
+    name = models.CharField(max_length=52, verbose_name='Название')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name
+        return f"ID: {self.pk} | Name: {self.name}"

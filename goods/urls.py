@@ -9,5 +9,5 @@ router.register(prefix="packages", viewset=views.PackageViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("types/", views.TypeListAPIView.as_view(), name="types"),
+    path("types/", views.TypeListAPIView.as_view()),
 ]

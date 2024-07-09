@@ -1,8 +1,6 @@
-version: "3"
-
 services:
   app:
-    build: ../idk
+    build: .
     restart: always
     volumes:
       - ./:/app
@@ -34,7 +32,7 @@ services:
     image: redis:alpine
 
   celery:
-    build: ../idk
+    build: .
     command: celery -A config worker --loglevel=info
     environment:
       - DB_NAME=${POSTGRES_NAME}
@@ -46,7 +44,7 @@ services:
       - postgres
 
   flower:
-    build: ../idk
+    build: .
     command: celery -A config flower
     ports:
       - '5555:5555'

@@ -7,23 +7,22 @@ class PackageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = '__all__'
-        read_only_fields = ('article', 'created_at', 'updated_at')
+        read_only_fields = ('article', 'delivery_cost')
 
     def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        return {'article': ret['article']}
+        representation = super().to_representation(instance)
+        return {'article': representation['article']}
 
 
-class PackageListSerializer(serializers.ModelSerializer):
+class PackageRetrieveListSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', queryset=Type.objects.all())
 
     class Meta:
         model = Package
-        fields = '__all__'
+        fields = ('id', 'name', 'weight', 'type', 'cost', 'delivery_cost', 'article')
 
 
 class TypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Type
-        fields = '__all__'
-        read_only_fields = ('created_at', 'updated_at')
+        fields = ('id', 'name')

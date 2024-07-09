@@ -134,7 +134,6 @@ CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_TASK_ALWAYS_EAGER = os.environ.get('CELERY_TASK_ALWAYS_EAGER')
 CELERY_TIMEZONE = 'UTC'
 
-
 CELERY_BEAT_SCHEDULE = {
     'calculate-delivery-cost-every-5-minutes': {
         'task': 'goods.tasks.calculate_delivery_cost',

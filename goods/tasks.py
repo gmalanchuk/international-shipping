@@ -21,7 +21,7 @@ async def calculate_delivery_cost_async():
 
     packages = await sync_to_async(list)(Package.objects.filter(delivery_cost__isnull=True))
     for package in packages:
-        package.delivery_cost = (package.weight * Decimal(0.5) + package.price * Decimal(0.01)) * Decimal(dollar_to_ruble_exchange_rate)
+        package.delivery_cost = (package.weight * Decimal(0.5) + package.cost * Decimal(0.01)) * Decimal(dollar_to_ruble_exchange_rate)
 
     await sync_to_async(Package.objects.bulk_update)(packages, ['delivery_cost'])
 
