@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 
+from goods.filters import DeliveryCostAndTypeFilter
 from goods.models import Package, Type
 from goods.serializers import TypeSerializer, PackageRetrieveListSerializer, PackageCreateSerializer
 
@@ -15,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Package.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['type']
+    serializer_class = PackageRetrieveListSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DeliveryCostAndTypeFilter
 
     def create(self, request, *args, **kwargs):
         """Метод создаёт посылку и сохраняет её уникальный артикул в сессию
@@ -49,12 +51,6 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
             # Получение всех посылок, которые были созданы пользователем
             self.queryset = self.queryset.filter(article__in=articles)
 
-        # Если передан параметр filter, то происходит фильтрация по типу посылки или факту наличия стоимости доставки
-        type_filter = request.query_params.get('filter')  # todo переименовать тогда эту переменную просто в filter, т.к фильтрация может быть не только по типу посылки
-        if type_filter:
-            logger.debug(f"Applying type filter: {type_filter}")
-            self.queryset = self.queryset.filter(type_id=type_filter)
-
         response = super().list(request, *args, **kwargs)
         logger.info("Package list fetched successfully")
 
@@ -75,9 +71,7 @@ class PackageViewSet(CreateModelMixin, ListModelMixin, RetrieveModelMixin, Gener
         return response
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return PackageRetrieveListSerializer
-        elif self.action == 'create':
+        if self.action == 'create':
             return PackageCreateSerializer
         return super().get_serializer_class()
 
